@@ -6,28 +6,43 @@ import {
   registerUserApi,
   resetPasswordApi,
   TLoginData,
-  TRegisterData
+  TRegisterData,
+  updateUserApi
 } from '@api';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { deleteCookie, setCookie } from '../../utils/cookie';
 
 export const loginUserThunk = createAsyncThunk(
   'user/loginUser',
   async ({ email, password }: TLoginData) => {
     const data = await loginUserApi({ email, password });
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
     return data;
   }
 );
 
 export const registerUserThunk = createAsyncThunk(
   'user/registerUser',
-  ({ email, name, password }: TRegisterData) =>
-    registerUserApi({ email, name, password })
+  async ({ email, name, password }: TRegisterData) => {
+    const data = await registerUserApi({ email, name, password });
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    return data;
+  }
 );
 
 export const getUserThunk = createAsyncThunk('user/getUser', () =>
   getUserApi()
 );
 
-export const logoutThunk = createAsyncThunk('user/logoutUser', () =>
-  logoutApi()
+export const logoutThunk = createAsyncThunk('user/logoutUser', () => {
+  logoutApi();
+  deleteCookie('accessToken');
+  localStorage.removeItem('refreshToken');
+});
+
+export const updateUserThunk = createAsyncThunk(
+  'user/updateUser',
+  updateUserApi
 );

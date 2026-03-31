@@ -5,7 +5,7 @@ import {
   orderBurgerApi,
   TNewOrder
 } from '@api';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   TConstructorIngredient,
   TIngredient,
@@ -21,7 +21,7 @@ export type TCurrentOrder = {
 const initialState: {
   isLoading: boolean;
   current: TCurrentOrder;
-  orderData: TOrder;
+  orderData: TOrder | null;
   history: TOrdersData;
   feed: TOrdersData;
 } = {
@@ -30,15 +30,7 @@ const initialState: {
     bun: null,
     ingredients: []
   },
-  orderData: {
-    _id: '',
-    status: '',
-    name: '',
-    createdAt: '',
-    updatedAt: '',
-    number: 0,
-    ingredients: []
-  },
+  orderData: null,
   history: {
     orders: [],
     total: 0,
@@ -61,8 +53,12 @@ export const getOrderByNumberThunk = createAsyncThunk(
   (number: number) => getOrderByNumberApi(number)
 );
 
-export const getFeedsThunk = createAsyncThunk('orders/getAllOrders', () =>
-  getFeedsApi()
+export const getFeedsThunk = createAsyncThunk(
+  'orders/getAllOrders',
+  async () => {
+    const data = await getFeedsApi();
+    return data;
+  }
 );
 
 export const getOrdersThunk = createAsyncThunk('orders/getAllOrdersUser', () =>
@@ -77,11 +73,35 @@ export const orderSlice = createSlice({
       if (payload.type === 'bun') {
         state.current.bun = payload;
       } else {
-        state.current.ingredients.push({ ...payload, id: payload._id });
+        state.current.ingredients.push({
+          ...payload,
+          id: state.current.ingredients.length
+        });
       }
     },
     makeOrder: (state, { payload }) => {
       state.history.orders.push(payload);
+    },
+    removeIngredient: (state, { payload }) => {
+      state.current.ingredients = state.current.ingredients.filter(
+        (item) => item._id !== payload._id
+      );
+    },
+    moveIngredient: (
+      state,
+      action: PayloadAction<{ fromIndex: number; toIndex: number }>
+    ) => {
+      const { fromIndex, toIndex } = action.payload;
+      [
+        state.current.ingredients[toIndex],
+        state.current.ingredients[fromIndex]
+      ] = [
+        state.current.ingredients[fromIndex],
+        state.current.ingredients[toIndex]
+      ];
+    },
+    resetOrderData: (state) => {
+      state.orderData = null;
     }
   },
   extraReducers: (builder) => {
@@ -90,6 +110,10 @@ export const orderSlice = createSlice({
     });
     builder.addCase(orderBurgerThunk.fulfilled, (state, { payload }) => {
       state.isLoading = false;
+      state.orderData = {
+        ...payload.order,
+        ingredients: state.current.ingredients.map((item) => item._id)
+      };
       state.current.bun = null;
       state.current.ingredients = [];
     });
@@ -101,7 +125,7 @@ export const orderSlice = createSlice({
     });
     builder.addCase(getOrderByNumberThunk.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.history.orders = payload.orders;
+      state.feed.orders = payload.orders;
     });
     builder.addCase(getOrderByNumberThunk.rejected, (state) => {
       state.isLoading = false;
@@ -129,6 +153,12 @@ export const orderSlice = createSlice({
   }
 });
 
-export const { addIngredientToOrder, makeOrder } = orderSlice.actions;
+export const {
+  addIngredientToOrder,
+  makeOrder,
+  removeIngredient,
+  moveIngredient,
+  resetOrderData
+} = orderSlice.actions;
 
 export default orderSlice.reducer;

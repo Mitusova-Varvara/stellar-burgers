@@ -2,24 +2,48 @@ import { FC, useMemo } from 'react';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useSelector } from 'react-redux';
-import { RootState } from 'src/services/store';
-import { TCurrentOrder } from 'src/services/order/order.slice';
+import { RootState, useDispatch } from '../../services/store';
+import {
+  orderBurgerThunk,
+  resetOrderData,
+  TCurrentOrder
+} from '../../services/order/order.slice';
+import { selectUser } from '../../services/user/user.slice';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
   const constructorItems: TCurrentOrder = useSelector(
     (state: RootState) => state.order.current
   );
+  const user = useSelector(selectUser);
+  console.log(user);
 
   const orderRequest = useSelector((state: RootState) => state.order.isLoading);
 
-  const orderModalData = null;
-  useSelector((state: RootState) => state.order.orderData);
+  const orderModalData = useSelector(
+    (state: RootState) => state.order.orderData
+  );
 
   const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
+    if (!constructorItems.bun || orderRequest) {
+      alert('Выберите булочку и одну начинку');
+      return;
+    }
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    const ingredientsIds = constructorItems.ingredients.map((item) => item._id);
+
+    dispatch(orderBurgerThunk([...ingredientsIds, constructorItems.bun._id]));
   };
-  const closeOrderModal = () => {};
+  const closeOrderModal = () => {
+    dispatch(resetOrderData());
+  };
 
   const price = useMemo(
     () =>

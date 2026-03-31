@@ -4,7 +4,8 @@ import {
   getUserThunk,
   loginUserThunk,
   logoutThunk,
-  registerUserThunk
+  registerUserThunk,
+  updateUserThunk
 } from './actions';
 
 export interface UserState {
@@ -77,11 +78,22 @@ export const userSlice = createSlice({
     });
     builder.addCase(logoutThunk.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.isInit = payload.success;
+      state.isInit = false;
     });
     builder.addCase(logoutThunk.rejected, (state) => {
       state.isLoading = false;
     });
+    builder
+      .addCase(updateUserThunk.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUserThunk.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.user = payload.user;
+      })
+      .addCase(updateUserThunk.rejected, (state) => {
+        state.isLoading = false;
+      });
   }
 });
 

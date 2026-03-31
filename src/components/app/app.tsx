@@ -11,7 +11,7 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Preloader } from '@ui';
@@ -24,14 +24,19 @@ import {
 import { getIngredientsThunk } from '../../services/ingredients/ingredients-slice';
 import { useEffect } from 'react';
 import { ProtectedRoute } from '../protected-route/protected-route';
+import { getUserThunk } from '../../services/user/actions';
+import { getFeedsThunk } from '../../services/order/order.slice';
 
 const App = () => {
   /** TODO: взять переменные из стора */
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getIngredientsThunk());
+    dispatch(getUserThunk());
+    dispatch(getFeedsThunk());
   }, []);
 
   const isIngredientsLoading = useSelector(
@@ -77,19 +82,54 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path={'/register'} element={<Register />} />
-          <Route path={'/forgot-password'} element={<ForgotPassword />} />
-          <Route path={'/reset-password'} element={<ResetPassword />} />
-          <Route path={'/profile'} element={<Profile />} />
-          <Route path={'/profile/orders'} element={<ProfileOrders />} />
+          <Route
+            path={'/register'}
+            element={
+              <ProtectedRoute onlyUnAuth>
+                <Register />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={'/forgot-password'}
+            element={
+              <ProtectedRoute onlyUnAuth>
+                <ForgotPassword />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={'/reset-password'}
+            element={
+              <ProtectedRoute onlyUnAuth>
+                <ResetPassword />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={'/profile'}
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={'/profile/orders'}
+            element={
+              <ProtectedRoute>
+                <ProfileOrders />
+              </ProtectedRoute>
+            }
+          />
           <Route path={'*'} element={<NotFound404 />} />
-          {/* <Route
+          <Route
             path={'/feed/:number'}
             element={
               <Modal
                 title={''}
                 onClose={function (): void {
-                  throw new Error('Function not implemented.');
+                  navigate(-1);
                 }}
               >
                 <OrderInfo />
@@ -102,7 +142,7 @@ const App = () => {
               <Modal
                 title={''}
                 onClose={function (): void {
-                  throw new Error('Function not implemented.');
+                  navigate(-1);
                 }}
               >
                 <IngredientDetails />
@@ -112,16 +152,18 @@ const App = () => {
           <Route
             path={'/profile/orders/:number'}
             element={
-              <Modal
-                title={''}
-                onClose={function (): void {
-                  throw new Error('Function not implemented.');
-                }}
-              >
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute>
+                <Modal
+                  title={''}
+                  onClose={function (): void {
+                    navigate(-1);
+                  }}
+                >
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
             }
-          /> */}
+          />
         </Route>
       </Routes>
     </div>

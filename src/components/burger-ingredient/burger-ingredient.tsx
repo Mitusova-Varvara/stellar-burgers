@@ -4,8 +4,12 @@ import { useLocation } from 'react-router-dom';
 import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
 import { getIngredientsThunk } from '../../services/ingredients/ingredients-slice';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from 'src/services/store';
+import {
+  AppDispatch,
+  RootState,
+  useDispatch,
+  useSelector
+} from '../../services/store';
 import { addIngredientToOrder } from '../../services/order/order.slice';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = ({

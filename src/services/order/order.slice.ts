@@ -12,6 +12,7 @@ import {
   TOrder,
   TOrdersData
 } from '@utils-types';
+import { v4 as uuidv4 } from 'uuid';
 
 export type TCurrentOrder = {
   bun: null | TIngredient;
@@ -75,7 +76,7 @@ export const orderSlice = createSlice({
       } else {
         state.current.ingredients.push({
           ...payload,
-          id: state.current.ingredients.length
+          id: uuidv4()
         });
       }
     },
@@ -84,7 +85,7 @@ export const orderSlice = createSlice({
     },
     removeIngredient: (state, { payload }) => {
       state.current.ingredients = state.current.ingredients.filter(
-        (item) => item._id !== payload._id
+        (item) => item.id !== payload.id
       );
     },
     moveIngredient: (
@@ -125,7 +126,7 @@ export const orderSlice = createSlice({
     });
     builder.addCase(getOrderByNumberThunk.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      state.feed.orders = payload.orders;
+      state.orderData = payload.orders[0];
     });
     builder.addCase(getOrderByNumberThunk.rejected, (state) => {
       state.isLoading = false;

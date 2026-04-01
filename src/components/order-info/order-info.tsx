@@ -1,15 +1,16 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
-import { RootState, useSelector } from '../../services/store';
+import { RootState, useDispatch, useSelector } from '../../services/store';
 import { useParams } from 'react-router-dom';
+import { getOrderByNumberThunk } from '../../services/order/order.slice';
 
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
-  const allOrders = useSelector((state: RootState) => state.order.feed.orders);
   const { number } = useParams();
-  const orderData = allOrders.find((item) => item.number === Number(number));
+  const orderData = useSelector((state: RootState) => state.order.orderData);
+  const dispatch = useDispatch();
 
   const ingredients: TIngredient[] = useSelector(
     (state: RootState) => state.ingredients.ingredients
@@ -56,6 +57,10 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
+
+  useEffect(() => {
+    dispatch(getOrderByNumberThunk(Number(number)));
+  }, []);
 
   if (!orderInfo) {
     return <Preloader />;

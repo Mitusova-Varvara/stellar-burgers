@@ -38,7 +38,13 @@ export const BurgerConstructor: FC = () => {
     }
     const ingredientsIds = constructorItems.ingredients.map((item) => item._id);
 
-    dispatch(orderBurgerThunk([...ingredientsIds, constructorItems.bun._id]));
+    dispatch(
+      orderBurgerThunk([
+        ...ingredientsIds,
+        constructorItems.bun._id,
+        constructorItems.bun._id
+      ])
+    );
   };
   const closeOrderModal = () => {
     dispatch(resetOrderData());

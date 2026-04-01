@@ -21,12 +21,7 @@ import {
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Preloader } from '@ui';
-import {
-  AppDispatch,
-  RootState,
-  useDispatch,
-  useSelector
-} from '../../services/store';
+import { RootState, useDispatch, useSelector } from '../../services/store';
 import { getIngredientsThunk } from '../../services/ingredients/ingredients-slice';
 import { useEffect } from 'react';
 import { ProtectedRoute } from '../protected-route/protected-route';
@@ -46,7 +41,7 @@ const App = () => {
   useEffect(() => {
     dispatch(getIngredientsThunk());
     dispatch(getUserThunk());
-  }, []);
+  }, [dispatch]);
 
   const isIngredientsLoading = useSelector(
     (state: RootState) => state.ingredients.isLoading

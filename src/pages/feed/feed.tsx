@@ -11,11 +11,13 @@ export const Feed: FC = () => {
     (state: RootState) => state.order.feed.orders
   );
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getFeedsThunk());
+  }, [dispatch]);
 
   if (!orders.length) {
     return <Preloader />;
   }
-
   return (
     <FeedUI
       orders={orders}

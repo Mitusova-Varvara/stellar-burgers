@@ -11,7 +11,13 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  useMatch
+} from 'react-router-dom';
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Preloader } from '@ui';
@@ -25,18 +31,21 @@ import { getIngredientsThunk } from '../../services/ingredients/ingredients-slic
 import { useEffect } from 'react';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { getUserThunk } from '../../services/user/actions';
-import { getFeedsThunk } from '../../services/order/order.slice';
 
 const App = () => {
   /** TODO: взять переменные из стора */
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const background = location.state?.background;
+
+  const profileOrderNumber = useMatch('/profile/orders/:number')?.params.number;
+  const feedNumber = useMatch('/feed/:number')?.params.number;
 
   useEffect(() => {
     dispatch(getIngredientsThunk());
     dispatch(getUserThunk());
-    dispatch(getFeedsThunk());
   }, []);
 
   const isIngredientsLoading = useSelector(
@@ -49,7 +58,7 @@ const App = () => {
 
   return (
     <div className={styles.app}>
-      <Routes>
+      <Routes location={background || location}>
         <Route path={'/'} element={<AppHeader />}>
           <Route
             path={'/'}
@@ -123,11 +132,25 @@ const App = () => {
             }
           />
           <Route path={'*'} element={<NotFound404 />} />
+          <Route path={'/feed/:number'} element={<OrderInfo />} />
+          <Route path={'/ingredients/:id'} element={<IngredientDetails />} />
+          <Route
+            path={'/profile/orders/:number'}
+            element={
+              <ProtectedRoute>
+                <OrderInfo />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+      </Routes>
+      {background && (
+        <Routes>
           <Route
             path={'/feed/:number'}
             element={
               <Modal
-                title={''}
+                title={`#${feedNumber}`}
                 onClose={function (): void {
                   navigate(-1);
                 }}
@@ -140,7 +163,7 @@ const App = () => {
             path={'/ingredients/:id'}
             element={
               <Modal
-                title={''}
+                title={'Описание ингредиента'}
                 onClose={function (): void {
                   navigate(-1);
                 }}
@@ -154,7 +177,7 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Modal
-                  title={''}
+                  title={`#${profileOrderNumber}`}
                   onClose={function (): void {
                     navigate(-1);
                   }}
@@ -164,8 +187,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-        </Route>
-      </Routes>
+        </Routes>
+      )}
     </div>
   );
 };

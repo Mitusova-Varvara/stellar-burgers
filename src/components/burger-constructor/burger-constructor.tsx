@@ -20,7 +20,6 @@ export const BurgerConstructor: FC = () => {
     (state: RootState) => state.order.current
   );
   const user = useSelector(selectUser);
-  console.log(user);
 
   const orderRequest = useSelector((state: RootState) => state.order.isLoading);
 

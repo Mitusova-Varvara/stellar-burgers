@@ -19,19 +19,30 @@ export type TCurrentOrder = {
   ingredients: TConstructorIngredient[];
 };
 
+type ConstructorPayload = {
+  bun: TIngredient;
+  ingredients: TConstructorIngredient;
+};
+
 const initialState: {
-  isLoading: boolean;
+  isOrderLoading: boolean;
+  isFeedLoading: boolean;
+  isHistoryLoading: boolean;
   current: TCurrentOrder;
   orderData: TOrder | null;
+  orderByNumber: TOrder | null;
   history: TOrdersData;
   feed: TOrdersData;
 } = {
-  isLoading: false,
+  isOrderLoading: false,
+  isFeedLoading: false,
+  isHistoryLoading: false,
   current: {
     bun: null,
     ingredients: []
   },
   orderData: null,
+  orderByNumber: null,
   history: {
     orders: [],
     total: 0,
@@ -70,15 +81,20 @@ export const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    addIngredientToOrder: (state, { payload }) => {
-      if (payload.type === 'bun') {
-        state.current.bun = payload;
-      } else {
-        state.current.ingredients.push({
-          ...payload,
-          id: uuidv4()
-        });
-      }
+    addIngredientToOrder: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        if (action.payload.type === 'bun') {
+          state.current.bun = action.payload;
+        } else {
+          state.current.ingredients.push(action.payload);
+        }
+      },
+      prepare: (ingredient) => ({
+        payload:
+          ingredient.type === 'bun'
+            ? ingredient
+            : { ...ingredient, id: uuidv4() }
+      })
     },
     makeOrder: (state, { payload }) => {
       state.history.orders.push(payload);
@@ -107,10 +123,10 @@ export const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(orderBurgerThunk.pending, (state) => {
-      state.isLoading = true;
+      state.isOrderLoading = true;
     });
     builder.addCase(orderBurgerThunk.fulfilled, (state, { payload }) => {
-      state.isLoading = false;
+      state.isOrderLoading = false;
       state.orderData = {
         ...payload.order,
         ingredients: state.current.ingredients.map((item) => item._id)
@@ -119,37 +135,37 @@ export const orderSlice = createSlice({
       state.current.ingredients = [];
     });
     builder.addCase(orderBurgerThunk.rejected, (state) => {
-      state.isLoading = false;
+      state.isOrderLoading = false;
     });
     builder.addCase(getOrderByNumberThunk.pending, (state) => {
-      state.isLoading = true;
+      state.isOrderLoading = true;
     });
     builder.addCase(getOrderByNumberThunk.fulfilled, (state, { payload }) => {
-      state.isLoading = false;
-      state.orderData = payload.orders[0];
+      state.isOrderLoading = false;
+      state.orderByNumber = payload.orders[0];
     });
     builder.addCase(getOrderByNumberThunk.rejected, (state) => {
-      state.isLoading = false;
+      state.isOrderLoading = false;
     });
     builder.addCase(getFeedsThunk.pending, (state) => {
-      state.isLoading = true;
+      state.isFeedLoading = true;
     });
     builder.addCase(getFeedsThunk.fulfilled, (state, { payload }) => {
-      state.isLoading = false;
+      state.isFeedLoading = false;
       state.feed = payload;
     });
     builder.addCase(getFeedsThunk.rejected, (state) => {
-      state.isLoading = false;
+      state.isFeedLoading = false;
     });
     builder.addCase(getOrdersThunk.pending, (state) => {
-      state.isLoading = true;
+      state.isHistoryLoading = true;
     });
     builder.addCase(getOrdersThunk.fulfilled, (state, { payload }) => {
-      state.isLoading = false;
+      state.isHistoryLoading = false;
       state.history.orders = payload;
     });
     builder.addCase(getOrdersThunk.rejected, (state) => {
-      state.isLoading = false;
+      state.isHistoryLoading = false;
     });
   }
 });

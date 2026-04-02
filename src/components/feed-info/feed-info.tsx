@@ -3,7 +3,6 @@ import { FC, useEffect } from 'react';
 import { TOrder } from '@utils-types';
 import { FeedInfoUI } from '../ui/feed-info';
 import { RootState, useDispatch, useSelector } from '../../services/store';
-import { getOrderByNumberThunk } from '../../services/order/order.slice';
 
 const getOrders = (orders: TOrder[], status: string): number[] =>
   orders

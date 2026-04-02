@@ -8,9 +8,16 @@ import { getOrderByNumberThunk } from '../../services/order/order.slice';
 
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
+  console.log('render ord info');
   const { number } = useParams();
-  const orderData = useSelector((state: RootState) => state.order.orderData);
+  const orderData = useSelector(
+    (state: RootState) => state.order.orderByNumber
+  );
+
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getOrderByNumberThunk(Number(number)));
+  }, [dispatch, number]);
 
   const ingredients: TIngredient[] = useSelector(
     (state: RootState) => state.ingredients.ingredients
@@ -57,10 +64,6 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
-
-  useEffect(() => {
-    dispatch(getOrderByNumberThunk(Number(number)));
-  }, []);
 
   if (!orderInfo) {
     return <Preloader />;

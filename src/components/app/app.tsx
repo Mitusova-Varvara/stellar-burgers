@@ -41,7 +41,7 @@ const App = () => {
   useEffect(() => {
     dispatch(getIngredientsThunk());
     dispatch(getUserThunk());
-  }, [dispatch]);
+  }, []);
 
   const isIngredientsLoading = useSelector(
     (state: RootState) => state.ingredients.isLoading

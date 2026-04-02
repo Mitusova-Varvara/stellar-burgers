@@ -1,8 +1,7 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useSelector } from 'react-redux';
-import { RootState, useDispatch } from '../../services/store';
+import { RootState, useDispatch, useSelector } from '../../services/store';
 import {
   orderBurgerThunk,
   resetOrderData,
@@ -21,7 +20,9 @@ export const BurgerConstructor: FC = () => {
   );
   const user = useSelector(selectUser);
 
-  const orderRequest = useSelector((state: RootState) => state.order.isLoading);
+  const orderRequest = useSelector(
+    (state: RootState) => state.order.isOrderLoading
+  );
 
   const orderModalData = useSelector(
     (state: RootState) => state.order.orderData

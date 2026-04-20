@@ -10,6 +10,7 @@ export const Feed: FC = () => {
   const orders: TOrder[] = useSelector(
     (state: RootState) => state.order.feed.orders
   );
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getFeedsThunk());

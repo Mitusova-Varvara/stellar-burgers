@@ -15,10 +15,16 @@ describe('Тестируем модальное окно', () => {
     cy.wait('@getIngredients');
   });
 
+  afterEach(() => {
+    localStorage.clear;
+    cy.clearCookie;
+  });
+
   it('При клике на ингредиент открывается и закрывается модалка', () => {
     const ingredients = cy.get("[data-cy='ingredient']");
     ingredients.first().click();
     cy.get("[data-cy='modal']").should('be.visible');
+    cy.get("[data-cy='modal']").should('contain', 'Ингредиент-1');
     cy.get("[data-cy='modal-close-btn']").click();
     cy.get("[data-cy='modal']").should('not.exist');
   });
@@ -31,7 +37,7 @@ describe('Тестируем модальное окно', () => {
     cy.get("[data-cy='modal']").should('not.exist');
   });
 
-  it('Открываем модальное окно при успешном выполнении заказа', () => {
+  it('Добавление ингредиентов с последующим оформлением заказа', () => {
     //Добавляем ингредиенты в заказ
     cy.get("[data-cy='add-inredient-btn'] button").first().click();
     cy.get("[data-cy='add-inredient-btn'] button").eq(1).click();
@@ -49,6 +55,10 @@ describe('Тестируем модальное окно', () => {
     //Проверяем что модальное окно открыто
     cy.get("[data-cy='modal']").should('be.visible');
     cy.get("[data-cy='order-number']").contains('1');
+
+    //Закрываем модальное окно
+    cy.get("[data-cy='modal-overlay']").click({ force: true });
+    cy.get("[data-cy='modal']").should('not.exist');
 
     //Проверяем, что конструктор пуст
     cy.get("[data-cy='bun-ingredient']").should('not.exist');

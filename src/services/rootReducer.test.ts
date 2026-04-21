@@ -1,13 +1,17 @@
+import ingredientsSlice from './ingredients/ingredients-slice';
+import orderSlice from './order/order.slice';
 import { rootReducer } from './store';
+import userSlice from './user/user.slice';
 
 describe('rootReducer', () => {
   it('проверяем правильную настройку и работу rootReducer', () => {
-    const initialState = rootReducer(undefined, { type: 'UNKNOWN_ACTION' });
+    const fakeAction = { type: 'UNKNOWN_ACTION' };
+    const state = rootReducer(undefined, fakeAction);
 
-    expect(initialState).toEqual({
-      user: expect.any(Object),
-      ingredients: expect.any(Object),
-      order: expect.any(Object)
+    expect(state).toEqual({
+      user: userSlice(undefined, fakeAction),
+      ingredients: ingredientsSlice(undefined, fakeAction),
+      order: orderSlice(undefined, fakeAction)
     });
   });
 });

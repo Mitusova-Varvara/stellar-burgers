@@ -4,7 +4,7 @@ import {
   getOrdersApi,
   orderBurgerApi,
   TNewOrder
-} from '@api';
+} from '../../utils/burger-api';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   TConstructorIngredient,
@@ -24,7 +24,7 @@ type ConstructorPayload = {
   ingredients: TConstructorIngredient;
 };
 
-const initialState: {
+export const initialState: {
   isOrderLoading: boolean;
   isFeedLoading: boolean;
   isHistoryLoading: boolean;
@@ -101,7 +101,7 @@ export const orderSlice = createSlice({
     },
     removeIngredient: (state, { payload }) => {
       state.current.ingredients = state.current.ingredients.filter(
-        (item) => item.id !== payload.id
+        (item) => item.id !== payload
       );
     },
     moveIngredient: (
@@ -137,6 +137,7 @@ export const orderSlice = createSlice({
     builder.addCase(orderBurgerThunk.rejected, (state) => {
       state.isOrderLoading = false;
     });
+
     builder.addCase(getOrderByNumberThunk.pending, (state) => {
       state.isOrderLoading = true;
     });
@@ -147,6 +148,7 @@ export const orderSlice = createSlice({
     builder.addCase(getOrderByNumberThunk.rejected, (state) => {
       state.isOrderLoading = false;
     });
+
     builder.addCase(getFeedsThunk.pending, (state) => {
       state.isFeedLoading = true;
     });
@@ -157,6 +159,7 @@ export const orderSlice = createSlice({
     builder.addCase(getFeedsThunk.rejected, (state) => {
       state.isFeedLoading = false;
     });
+
     builder.addCase(getOrdersThunk.pending, (state) => {
       state.isHistoryLoading = true;
     });

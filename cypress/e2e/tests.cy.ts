@@ -16,8 +16,8 @@ describe('Тестируем модальное окно', () => {
   });
 
   afterEach(() => {
-    localStorage.clear;
-    cy.clearCookie;
+    localStorage.clear();
+    cy.clearCookie('accessToken');
   });
 
   it('При клике на ингредиент открывается и закрывается модалка', () => {
